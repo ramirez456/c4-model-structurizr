@@ -22,16 +22,16 @@ namespace c4_model_monolithic
             Model model = workspace.Model;
 
             // 1. Diagrama de Contexto
-            SoftwareSystem monitoringSystem = model.AddSoftwareSystem("Sistemte de registro de asistencias", "Permite el registro de participantes, registro de sus asistencias y la generacion de sus certificados");
+            SoftwareSystem monitoringSystem = model.AddSoftwareSystem("Sistema de registro de asistencias", "Permite el registro de participantes, registro de sus asistencias y la generacion de sus certificados");
 
             Person ponente = model.AddPerson("Ponente", "Ponente");
             Person organizador = model.AddPerson("Organizador", "encargado");
             Person participante = model.AddPerson("Participante", "Persona");
             
             
-            ponente.Uses(monitoringSystem, "Realiza la visualizacion de las charlas que tiene que dar");
-            organizador.Uses(monitoringSystem, "Realiza registro de las asistencias para poder emitir los certificados a los participantes");
-            participante.Uses(monitoringSystem, "Registra su participacion para poder asistir a la ponencia");
+            ponente.Uses(monitoringSystem, "Obtiene certificación");
+            organizador.Uses(monitoringSystem, "Registra el evento, inscribe perticipantes, gestiona las encuestas y emite certificados.");
+            participante.Uses(monitoringSystem, "Registra su participación, obtiene su certificado, rellena encuentas de la ponencia");
             
             SystemContextView contextView = viewSet.CreateSystemContextView(monitoringSystem, "Contexto", "Diagrama de contexto");
             contextView.PaperSize = PaperSize.A4_Landscape;
@@ -55,9 +55,10 @@ namespace c4_model_monolithic
             Container webApplication = monitoringSystem.AddContainer("Web App", "Permite a los organizadores registrar las asistencias, registrar participantes y generar los certificados.", "Flutter Web");
             Container landingPage = monitoringSystem.AddContainer("Landing Page", "Permite a los usuarios ver las ponencias disponibles", "Flutter Web");
             Container apiRest = monitoringSystem.AddContainer("API Rest", "API Rest", "NodeJS (NestJS) port 8080");
-            Container certificateContext = monitoringSystem.AddContainer("Certificate Context", "Bounded Context del Microservicio de generacion de certificados", "NodeJS (NestJS)");
-            Container participanteContext = monitoringSystem.AddContainer("Participante Context", "Bounded Context del Microservicio de Registro de participantes", "NodeJS (NestJS)");
-            Container asistenciaContext = monitoringSystem.AddContainer("Asistencia Context", "Bounded Context del Microservicio de registro de asistencias", "NodeJS (NestJS)");
+            Container certificateContext = monitoringSystem.AddContainer("Certificate Context", "Bounded Context de certificados", "NodeJS (NestJS)");
+            Container participanteContext = monitoringSystem.AddContainer("Participante Context", "Bounded Context de Registro de participantes", "NodeJS (NestJS)");
+            Container asistenciaContext = monitoringSystem.AddContainer("Assistance Context", "Bounded Context de registro de asistencias", "NodeJS (NestJS)");
+            Container eventContext = monitoringSystem.AddContainer("Event Context", "Bounded Context de registro de eventoos", "NodeJS (NestJS)");
             Container database = monitoringSystem.AddContainer("Database", "", "Oracle");
             
             participante.Uses(landingPage, "Consulta");
@@ -71,11 +72,13 @@ namespace c4_model_monolithic
             apiRest.Uses(certificateContext, "", "");
             apiRest.Uses(participanteContext, "", "");
             apiRest.Uses(asistenciaContext, "", "");
+            apiRest.Uses(eventContext, "", "");
             
             
             certificateContext.Uses(database, "", "JDBC");
             participanteContext.Uses(database, "", "JDBC");
             asistenciaContext.Uses(database, "", "JDBC");
+            eventContext.Uses(database, "", "JDBC");
 
             // Tags
             webApplication.AddTags("WebApp");
@@ -86,6 +89,7 @@ namespace c4_model_monolithic
             certificateContext.AddTags("CertificateContext");
             participanteContext.AddTags("ParticipanteContext");
             asistenciaContext.AddTags("AsistenciaContext");
+            eventContext.AddTags("EventContext");
 
             styles.Add(new ElementStyle("MobileApp") { Background = "#9d33d6", Color = "#ffffff", Shape = Shape.MobileDevicePortrait, Icon = "" });
             styles.Add(new ElementStyle("WebApp") { Background = "#9d33d6", Color = "#ffffff", Shape = Shape.WebBrowser, Icon = "" });
@@ -95,6 +99,7 @@ namespace c4_model_monolithic
             styles.Add(new ElementStyle("AsistenciaContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("ParticipanteContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("CertificateContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("EventContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
 
             ContainerView containerView = viewSet.CreateContainerView(monitoringSystem, "Contenedor", "Diagrama de contenedores");
             contextView.PaperSize = PaperSize.A4_Landscape;
@@ -103,8 +108,8 @@ namespace c4_model_monolithic
             // 3. Diagrama de Componentes
             Component domainLayer = asistenciaContext.AddComponent("Domain Layer", "", "NodeJS (NestJS)");
             Component registerController = asistenciaContext.AddComponent("Register Controller", "REST API endpoints de registro.", "NodeJS (NestJS) REST Controller");
-            Component monitoringApplicationService = asistenciaContext.AddComponent("Asistencia Application Service", "Provee métodos para la gestion, pertenece a la capa Application de DDD", "NestJS Component");
-            Component asistenciaRepository = asistenciaContext.AddComponent("Asistencia Repository", "Información de asistencia", "NestJS Component");
+            Component monitoringApplicationService = asistenciaContext.AddComponent("Assistance Application Service", "Provee métodos para la gestion, pertenece a la capa Application de DDD", "NestJS Component");
+            Component asistenciaRepository = asistenciaContext.AddComponent("Assistance Repository", "Información de asistencia", "NestJS Component");
             Component asistentesRepository = asistenciaContext.AddComponent("Asistentes Repository", "Información de los asistentes", "NestJS Component");
             Component certificateRepository = asistenciaContext.AddComponent("Certificados Repository", "generacion del vertificados", "NestJS Component");
 
