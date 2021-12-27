@@ -105,47 +105,76 @@ namespace c4_model_monolithic
             contextView.PaperSize = PaperSize.A4_Landscape;
             containerView.AddAllElements();
 
-            // 3. Diagrama de Componentes
+            // 3. Diagrama de Componentes asistencias
             Component domainLayer = asistenciaContext.AddComponent("Domain Layer", "", "NodeJS (NestJS)");
             Component registerController = asistenciaContext.AddComponent("Register Controller", "REST API endpoints de registro.", "NodeJS (NestJS) REST Controller");
-            Component monitoringApplicationService = asistenciaContext.AddComponent("Assistance Application Service", "Provee métodos para la gestion, pertenece a la capa Application de DDD", "NestJS Component");
-            Component asistenciaRepository = asistenciaContext.AddComponent("Assistance Repository", "Información de asistencia", "NestJS Component");
-            Component asistentesRepository = asistenciaContext.AddComponent("Asistentes Repository", "Información de los asistentes", "NestJS Component");
-            Component certificateRepository = asistenciaContext.AddComponent("Certificados Repository", "generacion del vertificados", "NestJS Component");
+            Component assistanceApplicationService = asistenciaContext.AddComponent("Assistance Application Service", "Provee métodos para la gestion, pertenece a la capa Application de DDD", "NestJS Component");
+            Component asistenciaEntity = asistenciaContext.AddComponent("Assistance Entity", "model para  Asistencias", "NestJS Component");
+            Component asistenciaMaper = asistenciaContext.AddComponent("Assistance Maper", "Tipado de las request", "NestJS Component");
 
             apiRest.Uses(registerController, "", "JSON/HTTPS");
-            registerController.Uses(monitoringApplicationService, "Invoca métodos de registro");
-            monitoringApplicationService.Uses(domainLayer, "Usa", "");
-            monitoringApplicationService.Uses(asistenciaRepository, "", "JDBC");
-            monitoringApplicationService.Uses(asistentesRepository, "", "JDBC");
-            monitoringApplicationService.Uses(certificateRepository, "", "JDBC");
-            asistenciaRepository.Uses(database, "", "JDBC");
-            asistentesRepository.Uses(database, "", "JDBC");
-            certificateRepository.Uses(database, "", "JDBC");
+            registerController.Uses(assistanceApplicationService, "Invoca métodos de registro");
+            assistanceApplicationService.Uses(domainLayer, "Usa", "");
+            assistanceApplicationService.Uses(asistenciaEntity, "", "JDBC");
+            assistanceApplicationService.Uses(asistenciaMaper, "", "JDBC");
+            asistenciaEntity.Uses(database, "", "JDBC");
+            asistenciaMaper.Uses(database, "", "JDBC");
             
             // Tags
             domainLayer.AddTags("DomainLayer");
             registerController.AddTags("RegisterController");
-            monitoringApplicationService.AddTags("MonitoringApplicationService");
-            asistenciaRepository.AddTags("AsistenciaRepository");
-            asistentesRepository.AddTags("AsistentesRepository");
-            certificateRepository.AddTags("CertificateRepository");
+            assistanceApplicationService.AddTags("assistanceApplicationService");
+            asistenciaEntity.AddTags("AsistenciaEntity");
+            asistenciaMaper.AddTags("AsistenciaMaper");
             
             styles.Add(new ElementStyle("DomainLayer") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("RegisterController") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("MonitoringApplicationService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("assistanceApplicationService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("MonitoringDomainModel") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("FlightStatus") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("AsistenciaRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("AsistentesRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("CertificateRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("AsistenciaEntity") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("AsistenciaMaper") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
 
-            ComponentView componentView = viewSet.CreateComponentView(asistenciaContext, "Components", "Component Diagram");
+            ComponentView componentView = viewSet.CreateComponentView(asistenciaContext, "Component", "Component Diagram");
             componentView.PaperSize = PaperSize.A4_Landscape;
             componentView.Add(webApplication);
             componentView.Add(apiRest);
             componentView.Add(database);
             componentView.AddAllComponents();
+
+            //4.- componentes eventos
+            Component domainEventLayer = eventContext.AddComponent("Domain Layer", "", "NodeJS (NestJS)");
+            Component eventController = eventContext.AddComponent("Register Controller", "REST API endpoints de registro.", "NodeJS (NestJS) REST Controller");
+            Component eventApplicationService = eventContext.AddComponent("Event Application Service", "Provee métodos para la gestion, pertenece a la capa Application de DDD", "NestJS Component");
+            Component eventEntity = eventContext.AddComponent("Event Entity", "model para  event", "NestJS Component");
+            Component eventMaper = eventContext.AddComponent("Event Maper", "Tipado de las request", "NestJS Component");
+
+            apiRest.Uses(eventController, "", "JSON/HTTPS");
+            eventController.Uses(eventApplicationService, "Invoca métodos de registro");
+            eventApplicationService.Uses(domainEventLayer, "Usa", "");
+            eventApplicationService.Uses(eventEntity, "", "JDBC");
+            eventApplicationService.Uses(eventMaper, "", "JDBC");
+            eventEntity.Uses(database, "", "JDBC");
+            eventMaper.Uses(database, "", "JDBC");
+            
+            // Tags
+            domainEventLayer.AddTags("domainEventLayer");
+            eventController.AddTags("eventController");
+            eventApplicationService.AddTags("eventApplicationService");
+            eventEntity.AddTags("eventEntity");
+            eventMaper.AddTags("eventMaper");
+            
+            styles.Add(new ElementStyle("domainEventLayer") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("eventController") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("eventApplicationService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("eventEntity") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("eventMaper") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+
+            ComponentView componentEventView = viewSet.CreateComponentView(eventContext, "Components", "Component Diagram");
+            componentEventView.PaperSize = PaperSize.A4_Landscape;
+            componentEventView.Add(webApplication);
+            componentEventView.Add(apiRest);
+            componentEventView.Add(database);
+            componentEventView.AddAllComponents();
 
             structurizrClient.UnlockWorkspace(workspaceId);
             structurizrClient.PutWorkspace(workspaceId, workspace);
